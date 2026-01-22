@@ -9,17 +9,12 @@ const __dirname = path.dirname(__filename);
 
 const file = path.join(__dirname, "db.json");
 const adapter = new JSONFile(file);
-export const db = new Low(adapter);
+const defaultData = { routes: [] };
+
+export const db = new Low(adapter, defaultData);
 
 export async function initDb() {
-  try {
-    await db.read();
-    if (!db.data) {
-      db.data = { routes: [] };
-      await db.write();
-    }
-  } catch (err) {
-    console.error("DB init error:", err);
-    throw err;  // Crash startup so error is visible
-  }
+  await db.read();
+  // data initialized with defaultData if file empty or missing
+  await db.write();
 }
