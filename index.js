@@ -2,6 +2,8 @@ import express from "express";
 import { Low } from "lowdb";
 import { JSONFile } from "lowdb/node";
 import cors from "cors"; // ✅ add this
+import { nanoid } from "nanoid";
+
 
 const app = express();
 app.use(express.json());
@@ -21,14 +23,32 @@ app.post("/items", async (req, res) => {
 
 app.post("/routes", async (req, res) => {
   db.data.routes ||= [];
-  db.data.routes.push(req.body);
+
+  const route = {
+    id: nanoid(),
+    ...req.body
+  };
+
+  db.data.routes.push(route);
+  await db.write();
+
+  res.json(route);
+});
+
+
+app.delete("/routes/:id", async (req, res) => {
+  db.data.routes = (db.data.routes || []).filter(
+    r => r.id !== req.params.id
+  );
   await db.write();
   res.json({ success: true });
 });
 
+
 app.get("/routes", (req, res) => {
   res.json(db.data.routes || []);
 });
+
 
 
 const PORT = process.env.PORT || 3000;
