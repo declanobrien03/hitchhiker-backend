@@ -4,7 +4,10 @@ import { JSONFile } from "lowdb/node";
 const adapter = new JSONFile("db.json");
 export const db = new Low(adapter);
 
-// Initialize DB if empty
-await db.read();
-db.data ||= { routes: [] };
-await db.write();
+export async function initDb() {
+  await db.read();
+  if (!db.data) {
+    db.data = { routes: [] };
+    await db.write();
+  }
+}
